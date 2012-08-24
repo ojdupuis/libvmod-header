@@ -298,3 +298,30 @@ vmod_version(struct sess *sp __attribute__((unused)))
 {
 	return VERSION;
 }
+
+void __match_proto__()
+vmod_condset(struct sess *sp, struct vmod_priv *priv, const char *tested, const char *regexp, enum gethdr_e e,const char *header_name, const char *header_value, ...)
+{
+	va_list ap;
+	struct http *hp;
+    char *b;
+
+    CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+    assert(header_value != NULL);
+     VRT_re_init(&priv->priv, regexp);
+    priv->free = VRT_re_fini;
+    if (VRT_re_match(tested,priv->priv) != 0){
+        priv->priv=NULL;
+        vmod_remove(sp, priv,e,header_name,".*");
+
+        hp = header_vrt_selecthttp(sp, e);
+        va_start(ap, header_value);
+        b = VRT_String(hp->ws, header_name + 1, header_value, ap);
+        if (b == NULL)
+            WSP(sp, SLT_LostHeader, "vmod_header: %s", header_name+1);
+        else
+            http_SetHeader(sp->wrk, sp->fd, hp, b);
+        va_end(ap);
+
+    }
+}

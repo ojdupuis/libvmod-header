@@ -5,3 +5,5 @@ Function VOID remove(PRIV_CALL,HEADER,STRING)
 Function STRING get(PRIV_CALL,HEADER,STRING)
 Function VOID copy(HEADER,HEADER)
 Function STRING version()
+Function VOID condset(PRIV_CALL,STRING, STRING, HEADER, STRING_LIST)
+
